@@ -26,13 +26,11 @@
                      (js/clearTimeout @timer)
                      (reset! timer (js/setTimeout #(reset! dropdown false) 100))
                      true)
+        on-change (or on-change (fn [_]))
         update-model (fn [option]
                        (if multi
-                         (when-not (full) (let [val (swap! model conj option)]
-                                            (when on-change (on-change val))))
-                         (do
-                           (reset! model option)
-                           (when on-change (on-change option)))))]
+                         (when-not (full) (on-change (swap! model conj option)))
+                         (on-change (reset! model option))))]
     (fn []
       (let [filtered-options (filter-options @typed @model options)]
         [:div.selectize-control {:class (if multi "multi" "single")}
@@ -47,33 +45,34 @@
           [:input {:value @typed
                    :on-blur hide-later
                    :on-focus (fn [e] (reset! dropdown-width (-> e .-target .-parentNode .-offsetWidth))
+                               (js/clearTimeout @timer)
                                (reset! dropdown true))
                    :on-change (fn [e] (reset! typed (-> e .-target .-value))
-                                (reset! option-index 0)
-                                true)
+                                (reset! option-index 0))
                    :on-key-down (fn [e]
                                   (case (.-which e)
                                     13 (when-let [option (nth filtered-options @option-index)]
                                          (update-model option)
                                          (reset! typed "")
                                          (when-not multi (-> e .-target .blur)))
-                                    8 (when (and (empty? @typed) (not-empty filtered-options))
-                                        (swap! model #(if multi (or (butlast %) []))))
-                                    38 (when (> @option-index 0) (swap! option-index dec))
-                                    40 (when (< @option-index (dec (count filtered-options))) (swap! option-index inc))
+                                    8 (when (empty? @typed) 
+                                        (on-change (if multi (swap! model #(or (butlast %) []))
+                                                       (reset! model nil))))
+                                    38 (when (> @option-index 0)
+                                         (swap! option-index dec))
+                                    40 (when (< @option-index (dec (count filtered-options)))
+                                         (swap! option-index inc))
                                     (if (or (full) (and (not multi) @model))
                                       (.preventDefault e)
                                       true)))}]]
          [:div.selectize-dropdown {:style {:width (str @dropdown-width "px")
                                            :display (if @dropdown "block" "none")}
                                    :class (if multi "multi" "single")}
-          [:div.selectize-dropdown-content {:on-blur hide-later
-                                            :on-click #(js/clearTimeout @timer)}
-           ;; [:div.create {:data-selectable ""} "Add"]
+          [:div.selectize-dropdown-content
            (doall
             (for [{:keys [value label] :as option} filtered-options]
               ^{:key value}
-              [:div.option {:on-click (fn [e] (update-model option) (when-not multi (reset! dropdown false)))
+              [:div.option {:on-click (fn [e] (update-model option) (when multi (-> e .-currentTarget .-parentNode .-parentNode .-previousSibling .-lastChild .focus)))
                             :data-selectable ""
                             :class (when (= option (nth filtered-options @option-index)) "active")}
                (highlight label @typed)]))]]]))))

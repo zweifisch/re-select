@@ -5,6 +5,8 @@ selectize for reagent
 ## Usage
 
 ```clojure
+(require '[re-select.core :refer [selectize]])
+
 [selectize {:options (for [[name abbr] us-states] {:value abbr :label name})
             :multi true
             :max-items 3
