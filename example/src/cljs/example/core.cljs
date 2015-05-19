@@ -64,13 +64,14 @@
 
 (defn home-page []
   (let [state (atom nil)
-        states (atom [])]
+        states (atom [{:value "WI" :label "Wisconsin"}])]
     (fn []
       [:div
        [:div "Multiple"
         [selectize {:options (for [[name abbr] us-states] {:value abbr :label name})
                     :multi true
                     :max-items 3
+                    :value states
                     :on-change #(reset! states %)}]
         (for [{:keys [value]} @states]
           [:span {:style {:font-size "0.7em" :margin-right "0.5em"}} value])]

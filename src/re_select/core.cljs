@@ -14,8 +14,8 @@
         p3 (subs line (+ (count hl) idx))]
     [:div p1 [:span.highlight p2] p3]))
 
-(defn selectize [{:keys [options multi max-items on-change]}]
-  (let [model (atom (if multi []))
+(defn selectize [{:keys [options multi max-items on-change value]}]
+  (let [model (or value (atom (if multi [])))
         typed (atom "")
         dropdown (atom false)
         dropdown-width (atom 0)
