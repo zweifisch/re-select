@@ -2,6 +2,8 @@
 
 selectize for reagent
 
+[![Clojars Project](http://clojars.org/re-select/latest-version.svg)](http://clojars.org/re-select)
+
 ## Usage
 
 ```clojure
@@ -10,6 +12,7 @@ selectize for reagent
 [selectize {:options (for [[name abbr] us-states] {:value abbr :label name})
             :multi true
             :max-items 3
+            :value initial-value-in-atom
             :on-change (fn [value] (prn value))}]
 ```
 

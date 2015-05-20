@@ -1,4 +1,4 @@
-(defproject re-select "0.1.0-SNAPSHOT"
+(defproject re-select "0.1.0"
   :description "selectize for reagent"
   :url "https://github.com/zweifisch/re-select"
   :license {:name "Eclipse Public License"
